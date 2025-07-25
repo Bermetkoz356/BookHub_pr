@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}BookHub — Главная{% endblock %}
+{% block content %}
+<style>
+  body, .card, .card-body, .form-label, .form-control, .form-select, .btn, .text-muted, label, h1, h2, h3, h4, h5, h6, p, span, div {
+    color: #3e2723 !important;
+  }
+  .book-cover {
+    width: 160px;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: #f8f8f8;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .book-card .book-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+    font-size: 1.08rem;
+  }
+  .book-card .book-author {
+    font-size: 0.95rem;
+    color: #7b5e3b;
+    margin-bottom: 4px;
+  }
+  .book-card {
+    background: #fffbe9;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 12px 8px 16px 8px;
+    min-height: 370px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .book-card .book-cover.mb-2.d-flex {
+    width: 160px;
+    height: 240px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .trend-preview-img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 12px;
+    box-shadow: 0 2px 8px rgba(191,167,122,0.08);
+    background: #f8f8f8;
+    display: inline-block;
+    vertical-align: middle;
+  }
+</style>
+<div class="row g-4 mt-3">
+  <!-- Левая колонка -->
+  <div class="col-12 col-lg-3">
+    <div class="mb-4 p-3 bg-white rounded shadow-sm">
+      <h5 class="mb-3" style="color:var(--accent2);"><i class="bi bi-book"></i> Читаю сейчас:</h5>
+      <ul class="list-group mb-3">
+        <li class="list-group-item">Книга 1</li>
+        <li class="list-group-item">Книга 2</li>
+        <li class="list-group-item">Книга 3</li>
+      </ul>
+      <h6 class="mt-4 mb-2" style="color:var(--accent);"><i class="bi bi-flag"></i> 2025 челлендж</h6>
+      <div class="progress mb-3" style="height: 18px;">
+        <div class="progress-bar" role="progressbar" style="width: 40%; background: var(--accent2);" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">8/20 книг</div>
+      </div>
+      <h6 class="mt-4 mb-2" style="color:var(--accent2);"><i class="bi bi-bookmark-heart"></i> Хочу прочитать</h6>
+      <ul class="list-group mb-3">
+        <li class="list-group-item">Книга 4</li>
+        <li class="list-group-item">Книга 5</li>
+      </ul>
+      <h6 class="mt-4 mb-2" style="color:var(--accent2);"><i class="bi bi-bookshelf"></i> Книжная полка</h6>
+      <ul class="list-group">
+        <li class="list-group-item">Книга 1</li>
+        <li class="list-group-item">Книга 2</li>
+        <li class="list-group-item">Книга 3</li>
+        <li class="list-group-item">Книга 4</li>
+        <li class="list-group-item">Книга 5</li>
+      </ul>
+    </div>
+  </div>
+  <!-- Центральная колонка -->
+  <div class="col-12 col-lg-6">
+    <div class="p-4 mb-4 rounded-4 shadow-sm text-center" style="background: var(--main-bg-light); color: var(--main-bg-dark);">
+      <h1 class="display-5 fw-bold mb-2" style="color:var(--accent2);"><i class="bi bi-book-half"></i> Добро пожаловать в BookHub!</h1>
+      <p class="lead mb-2">Ваша социальная сеть для чтения, рекомендаций и обсуждений книг.</p>
+    </div>
+    <div class="mb-4 p-3 bg-white rounded shadow-sm text-center">
+      <h5 class="mb-3" style="color:var(--accent2);"><i class="bi bi-graph-up"></i> Тренды</h5>
+      {% if trends %}
+        <ul class="list-group list-group-flush text-start">
+          {% for trend in trends %}
+            <li class="list-group-item d-flex align-items-center">
+              {% if trend.preview_image %}
+                <img src="{{ trend.preview_image.url }}" class="trend-preview-img" alt="Превью">
+              {% endif %}
+              <div style="flex:1;">
+                <a href="{{ trend.url }}" target="_blank" style="font-weight:600;color:var(--accent2);text-decoration:none;">
+                  <i class="bi bi-lightning-charge"></i> {{ trend.title }}
+                </a>
+                {% if trend.description %}<div class="small text-muted mt-1">{{ trend.description }}</div>{% endif %}
+                <div class="small" style="color:#bfa77a;">{{ trend.published_at|date:"d.m.Y" }}</div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="alert alert-success">Трендовые книги, жанры и обсуждения появятся здесь!</div>
+      {% endif %}
+    </div>
+    <div class="mb-4 p-3 bg-white rounded shadow-sm text-center">
+      <h5 class="mb-3" style="color:var(--accent2);"><i class="bi bi-lightbulb"></i> Обновления</h5>
+      {% if updates %}
+        <ul class="list-group mb-3">
+          {% for update in updates %}
+            <li class="list-group-item">
+              <a href="{{ update.url }}" target="_blank" style="font-weight:600;color:var(--accent2);text-decoration:none;">
+                <i class="bi bi-lightbulb"></i> {{ update.title }}
+              </a>
+              {% if update.description %}<div class="small text-muted mt-1">{{ update.description }}</div>{% endif %}
+              <div class="small" style="color:#bfa77a;">{{ update.published_at|date:"d.m.Y" }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="alert alert-info">Здесь будут появляться новости о новых книгах, действиях друзей и событиях сообщества.</div>
+      {% endif %}
+    </div>
+  </div>
+  <!-- Правая колонка -->
+  <div class="col-12 col-lg-3">
+    <div class="mb-4 p-3 bg-white rounded shadow-sm">
+      <h5 class="mb-3" style="color:var(--accent2);"><i class="bi bi-newspaper"></i> Новости и интервью</h5>
+      {% if interviews %}
+        <ul class="list-group mb-3">
+          {% for interview in interviews %}
+            <li class="list-group-item">
+              <a href="{{ interview.url }}" target="_blank" style="font-weight:600;color:var(--accent2);text-decoration:none;">
+                <i class="bi bi-mic"></i> {{ interview.title }}
+              </a>
+              {% if interview.description %}<div class="small text-muted mt-1">{{ interview.description }}</div>{% endif %}
+              <div class="small" style="color:#bfa77a;">{{ interview.published_at|date:"d.m.Y" }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+      <ul class="list-group mb-3">
+        <li class="list-group-item">Интервью с автором X</li>
+        <li class="list-group-item">Новость о премии Y</li>
+      </ul>
+      {% endif %}
+      {% if book_of_year %}
+      <h6 class="mt-4 mb-2" style="color:var(--accent2);"><i class="bi bi-trophy"></i> Самая читаемая книга {{ book_of_year.year }} года</h6>
+      <div class="card p-3 mb-3 shadow-sm text-center" style="background: var(--main-bg-light);">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          {% if book_of_year.image %}
+            <img src="{{ book_of_year.image.url }}" alt="{{ book_of_year.book.title }}" style="width:100px;max-height:150px;object-fit:cover;border-radius:8px;box-shadow:0 2px 8px rgba(191,167,122,0.10);margin-bottom:10px;">
+          {% elif book_of_year.book.cover %}
+            <img src="{{ book_of_year.book.cover.url }}" alt="{{ book_of_year.book.title }}" style="width:100px;max-height:150px;object-fit:cover;border-radius:8px;box-shadow:0 2px 8px rgba(191,167,122,0.10);margin-bottom:10px;">
+          {% endif %}
+        </div>
+        <h6 class="card-title" style="color:var(--accent2);">{{ book_of_year.book.title }}</h6>
+        <div class="mb-2 text-muted">{{ book_of_year.book.author }}</div>
+        {% if book_of_year.description %}<div class="mb-2">{{ book_of_year.description }}</div>{% endif %}
+        {% if book_of_year.url %}<a href="{{ book_of_year.url }}" target="_blank" class="btn btn-main btn-sm">Подробнее</a>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<!-- Каталог книг на главной -->
+<div class="mt-5">
+  <h2 class="mb-4 text-center" style="color:var(--accent2);"><i class="bi bi-collection"></i> Каталог книг</h2>
+  <div class="row">
+    {% for book in popular_books %}
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+      <div class="book-card p-2 h-100 text-center">
+        {% if book.cover %}
+          <img src="{{ book.cover.url }}" class="book-cover mb-2" alt="{{ book.title }}">
+        {% else %}
+          <div class="book-cover mb-2 d-flex align-items-center justify-content-center" style="height:180px;"><i class="bi bi-book" style="font-size:2.2rem;color:#ccc;"></i></div>
+        {% endif %}
+        <div class="book-title">{{ book.title }}</div>
+        <div class="book-author"><i class="bi bi-person"></i> {{ book.author }}</div>
+        <a href="/book/{{ book.pk }}/" class="btn btn-outline-primary btn-sm mt-2"><i class="bi bi-eye"></i> Подробнее</a>
+        {% if book.file %}
+          <a href="/book/{{ book.pk }}/#reader" class="btn btn-main btn-sm mt-2"><i class="bi bi-book"></i> Читать</a>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center"><em>Книг пока нет.</em></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %} 

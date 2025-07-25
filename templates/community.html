@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  body, .card, .card-body, .form-label, .form-control, .form-select, .btn, .text-muted, label, h1, h2, h3, h4, h5, h6, p, span, div {
+    color: #181818 !important;
+  }
+  .community-btn-light {
+    background: var(--main-bg-light) !important;
+    color: var(--accent3) !important;
+    border-color: var(--accent2) !important;
+    font-weight: 600;
+    transition: background 0.18s, color 0.18s, border 0.18s;
+  }
+  .community-btn-light:hover {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border-color: var(--accent2) !important;
+  }
+</style>
+<div class="container py-4" style="max-width:900px;">
+  <h2 class="mb-4" style="font-weight:600;">Сообщество</h2>
+  <div class="card" style="border:none;background:#f7f3ee;">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0" style="font-weight:500;">Обсуждения</h5>
+        <a href="#" class="btn community-btn-light btn-sm"><i class="bi bi-plus-lg"></i> Новая тема</a>
+      </div>
+      <table class="table mb-0" style="background:transparent;">
+        <thead>
+          <tr style="border-bottom:2px solid #e0d6c3;">
+            <th style="color:#7c674c;font-weight:500;">Тема</th>
+            <th style="color:#7c674c;font-weight:500;">Автор</th>
+            <th style="color:#7c674c;font-weight:500;">Ответы</th>
+            <th style="color:#7c674c;font-weight:500;">Последний пост</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for topic in topics %}
+          <tr style="border-bottom:1px solid #e0d6c3;">
+            <td><a href="#" style="color:#222;text-decoration:none;font-weight:500;">{{ topic.title }}</a></td>
+            <td>{{ topic.author }}</td>
+            <td><i class="bi bi-chat-left-text me-1"></i> {{ topic.replies }}</td>
+            <td><span class="text-muted small">{{ topic.last_post }}</span><br><span class="small">{{ topic.last_user }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not topics %}
+        <div class="text-muted mt-3">Нет обсуждений.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  body, .card, .card-body, .form-label, .form-control, .form-select, .btn, .text-muted, label, h1, h2, h3, h4, h5, h6, p, span, div {
+    color: #181818 !important;
+  }
+  .msg-unread { background: #fffbe6; }
+</style>
+<div class="container py-4" style="max-width:700px;">
+  <h2 class="mb-4" style="font-weight:600;"><i class="bi bi-chat-dots me-2"></i>Сообщения</h2>
+  <div class="card" style="border:none;background:#faf7f2;box-shadow:0 2px 8px rgba(191,167,122,0.07);">
+    <div class="card-body p-3">
+      {% if dialogs %}
+        <ul class="list-unstyled mb-0">
+          {% for d in dialogs %}
+            <li class="d-flex align-items-center mb-3 pb-2 border-bottom {% if d.unread %}msg-unread{% endif %}" style="border-color:#e0d6c3 !important;">
+              {% if d.avatar %}
+                <img src="{{ d.avatar }}" alt="avatar" class="rounded-circle me-3" width="48" height="48" style="object-fit:cover;border:2px solid #bfa77a;">
+              {% elif d.initial %}
+                <span class="d-inline-flex justify-content-center align-items-center rounded-circle me-3 bg-light" style="width:48px;height:48px;border:2px solid #bfa77a;font-weight:600;color:#bfa77a;font-size:1.3em;">{{ d.initial }}</span>
+              {% endif %}
+              <div class="flex-grow-1">
+                <div class="fw-semibold d-flex align-items-center">
+                  <span>{{ d.name }}</span>
+                  {% if d.unread %}<span class="badge bg-warning text-dark ms-2">Новое</span>{% endif %}
+                </div>
+                <div class="small text-muted">{{ d.last_message }}</div>
+              </div>
+              <div class="text-end small text-muted" style="min-width:70px;">{{ d.time }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="text-muted">Нет сообщений.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %} 

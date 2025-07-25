@@ -15,8 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # ваши приложения
-    'users',
+    'bookhub_project.users',
 ]
 
 MIDDLEWARE = [

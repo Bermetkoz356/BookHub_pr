@@ -1,0 +1,1 @@
+web: gunicorn bookhub_project.wsgi 
