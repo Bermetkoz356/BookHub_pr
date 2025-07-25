@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  body, .card, .card-body, .form-label, .form-control, .form-select, .btn, .text-muted, label, h1, h2, h3, h4, h5, h6, p, span, div {
+    color: #181818 !important;
+  }
+</style>
+<div class="container py-4" style="max-width:700px;">
+  <h2 class="mb-4" style="font-weight:600;">Настройки аккаунта</h2>
+  <div class="card" style="border:none;background:#faf7f2;box-shadow:0 2px 8px rgba(191,167,122,0.07);">
+    <div class="card-body p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="d-flex align-items-center mb-4">
+          {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="{{ user.get_full_name|default:user.username }}" class="rounded-circle me-4" width="90" height="90" style="object-fit:cover;border:3px solid #bfa77a;">
+          {% else %}
+            <span class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light me-4" style="width:90px;height:90px;border:3px solid #bfa77a;font-weight:600;color:#bfa77a;font-size:2em;">
+              {% if user.get_full_name %}{{ user.get_full_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+            </span>
+          {% endif %}
+          <div>
+            <label for="id_avatar" class="form-label mb-1" style="font-weight:500;">Фото профиля</label>
+            <input type="file" name="avatar" id="id_avatar" class="form-control form-control-sm" style="background:#f3ede3;border:none;max-width:220px;">
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="id_first_name" class="form-label" style="font-weight:500;">Имя</label>
+            <input type="text" name="first_name" id="id_first_name" class="form-control" value="{{ user.first_name }}" style="background:#f3ede3;border:none;">
+          </div>
+          <div class="col-md-6">
+            <label for="id_last_name" class="form-label" style="font-weight:500;">Фамилия</label>
+            <input type="text" name="last_name" id="id_last_name" class="form-control" value="{{ user.last_name }}" style="background:#f3ede3;border:none;">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="id_email" class="form-label" style="font-weight:500;">Email</label>
+          <input type="email" name="email" id="id_email" class="form-control" value="{{ user.email }}" style="background:#f3ede3;border:none;">
+        </div>
+        <div class="mb-3">
+          <label for="id_about" class="form-label" style="font-weight:500;">О себе</label>
+          <textarea name="about" id="id_about" class="form-control" rows="3" style="background:#f3ede3;border:none;">{{ profile.about }}</textarea>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="id_city" class="form-label" style="font-weight:500;">Город</label>
+            {{ form.city }}
+          </div>
+          <div class="col-md-6">
+            <label for="id_country" class="form-label" style="font-weight:500;">Страна</label>
+            {{ form.country }}
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="id_birth_date" class="form-label" style="font-weight:500;">Дата рождения</label>
+          {{ form.birth_date }}
+        </div>
+        <div class="mb-4">
+          <a href="{% url 'account_change_password' %}" class="btn btn-outline-dark btn-sm" style="border-color:#bfa77a;">Сменить пароль</a>
+        </div>
+        <button type="submit" class="btn btn-dark w-100" style="background:#222;border:none;font-weight:500;">Сохранить изменения</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,435 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  .book-detail-bg {
+    position: absolute;
+    top: 70px; left: 0; width: 100%; height: calc(100% - 70px);
+    z-index: 0;
+    pointer-events: none;
+    background: var(--main-bg-light);
+  }
+  .book-detail-main {
+    position: relative;
+    z-index: 2;
+    max-width: 1050px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border-radius: 18px;
+    box-shadow: 0 4px 32px rgba(44,59,47,0.10);
+    padding: 36px 28px 32px 28px;
+  }
+  .book-detail-cover {
+    width: 220px;
+    height: 320px;
+    object-fit: cover;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(44,59,47,0.13);
+    background: var(--main-bg-light);
+    margin-bottom: 18px;
+    margin-top: 4px;
+  }
+  .book-detail-btn {
+    width: 100%;
+    border-radius: 8px;
+    font-size: 1.01em;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding: 0.5em 0;
+    box-shadow: 0 1px 4px rgba(44,59,47,0.07);
+    background: var(--accent);
+    color: #fff;
+    border: 1.2px solid var(--accent2);
+    transition: background 0.18s, color 0.18s, border 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .book-detail-btn:hover {
+    background: var(--accent2);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .book-detail-rating {
+    margin: 18px 0 8px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .book-detail-stars {
+    font-size: 1.45em;
+    color: #f5c518;
+    letter-spacing: 2px;
+  }
+  .book-detail-rate-label {
+    font-size: 0.98em;
+    color: #bfa77a;
+    margin-top: 2px;
+  }
+  .book-detail-genre {
+    margin-top: 18px;
+    font-size: 1.01em;
+    color: #7c674c;
+    background: #fffbe9;
+    border-radius: 7px;
+    padding: 4px 14px;
+    display: inline-block;
+    font-weight: 500;
+  }
+  .book-detail-title {
+    font-size: 2.1em;
+    font-weight: 800;
+    color: #7c674c;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .book-detail-title .bi-bookmark-heart { color: #e57373; font-size: 1.1em; }
+  .book-detail-author {
+    font-size: 1.13em;
+    color: #bfa77a;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 600;
+  }
+  .book-detail-author .bi-person-circle { color: #7c674c; font-size: 1.1em; }
+  .book-detail-avg-rating {
+    font-size: 1.18em;
+    color: #e6b800;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .book-detail-description {
+    color: #7c674c;
+    font-size: 1.08em;
+    margin-bottom: 10px;
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.3s;
+  }
+  .book-detail-description.expanded {
+    max-height: 1000px;
+    overflow: visible;
+  }
+  .book-detail-description-fade {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2.5em;
+    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fffbe9 100%);
+    pointer-events: none;
+  }
+  .book-detail-expand-btn {
+    background: none;
+    border: none;
+    color: #bfa77a;
+    font-size: 1em;
+    cursor: pointer;
+    margin-bottom: 10px;
+    margin-top: -8px;
+    transition: color 0.18s;
+  }
+  .book-detail-expand-btn:hover { color: #e57373; }
+  .book-detail-author-info {
+    font-size: 0.98em;
+    color: #7c674c;
+    background: #fffbe9;
+    border-radius: 7px;
+    padding: 7px 14px;
+    margin-bottom: 18px;
+    margin-top: 8px;
+  }
+  .book-detail-reviews {
+    margin-top: 18px;
+  }
+  .book-detail-review-card {
+    background: #f9f6f2;
+    border-radius: 10px;
+    border: 1px solid #f3ede3;
+    padding: 14px 16px 10px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(191,167,122,0.04);
+  }
+  .book-detail-review-user {
+    font-weight: 600;
+    color: #7c674c;
+    margin-bottom: 2px;
+  }
+  .book-detail-review-rating {
+    color: #e6b800;
+    font-size: 1.08em;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .book-detail-review-date {
+    font-size: 0.93em;
+    color: #bfa77a;
+    margin-top: 2px;
+  }
+  .book-detail-rate-form {
+    background: var(--main-bg-light) !important;
+    border-radius: 10px !important;
+    padding: 4px 6px 4px 6px !important;
+    margin-bottom: 7px !important;
+    box-shadow: 0 1px 4px rgba(44,59,47,0.04) !important;
+    font-size: 0.92em !important;
+    max-width: 200px !important;
+    width: 200px !important;
+    display: block !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .book-detail-rate-form .form-control,
+  .book-detail-rate-form textarea,
+  .book-detail-rate-form select {
+    font-size: 0.95em !important;
+    padding: 0.25em 0.5em !important;
+    margin-bottom: 4px !important;
+    min-height: 28px !important;
+    border-radius: 6px !important;
+  }
+  .book-detail-rate-form .btn {
+    font-size: 0.92em !important;
+    padding: 0.22em 0.7em !important;
+    border-radius: 6px !important;
+    min-width: 0 !important;
+  }
+  .modern-stars {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    font-size: 2.1em;
+    cursor: pointer;
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+  .modern-stars .star {
+    color: #e0d6c3;
+    transition: color 0.18s, transform 0.18s;
+    filter: drop-shadow(0 1px 2px rgba(191,167,122,0.08));
+  }
+  .modern-stars .star.selected,
+  .modern-stars .star.filled {
+    color: #f5c518;
+    transform: scale(1.13);
+    text-shadow: 0 2px 8px #ffe6e6;
+  }
+  .modern-stars .star:hover,
+  .modern-stars .star.hovered {
+    color: #e6b800;
+    transform: scale(1.18);
+  }
+  .modern-avg-rating {
+    font-size: 2.1em;
+    color: #f5c518;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    animation: pop-in 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+  }
+  @keyframes pop-in {
+    0% { transform: scale(0.7); opacity: 0; }
+    80% { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  @media (max-width: 900px) {
+    .book-detail-main { padding: 18px 4vw 18px 4vw; }
+    .book-detail-cover { width: 140px; height: 200px; }
+    .book-detail-title { font-size: 1.3em; }
+  }
+</style>
+<div class="book-detail-bg"></div>
+<div class="book-detail-main position-relative">
+  <div class="row g-4">
+    <!-- Левая колонка -->
+    <div class="col-md-4 text-center">
+        {% if book.cover %}
+        <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="book-detail-cover mb-2">
+        {% else %}
+        <div class="d-flex align-items-center justify-content-center bg-light rounded mb-2" style="height:320px;"><i class="bi bi-book" style="font-size:3rem;color:#ccc;"></i></div>
+        {% endif %}
+        <form method="post" action="{% url 'add_to_mybooks' %}" class="mb-2 d-inline">
+          {% csrf_token %}
+          <input type="hidden" name="book_id" value="{{ book.pk }}">
+        <button type="submit" class="book-detail-btn"><i class="bi bi-plus-circle"></i> В мои книги</button>
+        </form>
+        {% if book.file %}
+        <a href="{{ book.file.url }}" class="book-detail-btn" download><i class="bi bi-download"></i> Скачать</a>
+        {% if is_pdf %}
+          <button id="openReaderBtn" type="button" class="book-detail-btn" onclick="openReaderModal()">
+            <i class="bi bi-book"></i> Читать онлайн
+          </button>
+          <div id="readerModal" style="display:none;position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(30,30,30,0.88);transition:opacity 0.25s;">
+            <div id="readerModalBox" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60vw;height:75vh;max-width:900px;max-height:90vh;background:#222;border-radius:14px;box-shadow:0 4px 32px rgba(0,0,0,0.18);overflow:hidden;display:flex;flex-direction:column;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:#181818;border-bottom:1px solid #333;">
+                <span style="font-weight:600;color:#ffe6e6;"><i class="bi bi-book"></i> Онлайн-читалка</span>
+                <div style="display:flex;gap:10px;">
+                  <button onclick="fullscreenReader()" title="На весь экран" style="background:none;border:none;font-size:1.5em;color:#bfa77a;cursor:pointer;"><i class="bi bi-arrows-fullscreen"></i></button>
+                  <button onclick="closeReaderModal()" title="Закрыть" style="background:none;border:none;font-size:1.7em;color:#e57373;cursor:pointer;">&times;</button>
+                </div>
+              </div>
+              <iframe id="readerIframe" src="{% url 'book_pdf_view' book.pk %}" style="width:100%;height:100%;border:none;background:#222;" allowfullscreen></iframe>
+            </div>
+          </div>
+          <script>
+            function openReaderModal() {
+              document.getElementById('readerModal').style.display = 'block';
+            }
+            function closeReaderModal() {
+              document.getElementById('readerModal').style.display = 'none';
+            }
+            function fullscreenReader() {
+              var iframe = document.getElementById('readerIframe');
+              if (iframe.requestFullscreen) {
+                iframe.requestFullscreen();
+              } else if (iframe.mozRequestFullScreen) {
+                iframe.mozRequestFullScreen();
+              } else if (iframe.webkitRequestFullscreen) {
+                iframe.webkitRequestFullscreen();
+              } else if (iframe.msRequestFullscreen) {
+                iframe.msRequestFullscreen();
+              }
+            }
+            // Закрытие по клику вне окна (исключая кнопку открытия)
+            document.addEventListener('mousedown', function(e) {
+              var modal = document.getElementById('readerModal');
+              var box = document.getElementById('readerModalBox');
+              var openBtn = document.getElementById('openReaderBtn');
+              if (modal.style.display === 'block' && !box.contains(e.target) && e.target !== openBtn) {
+                modal.style.display = 'none';
+              }
+            });
+            // Escape для закрытия
+            document.addEventListener('keydown', function(e) {
+              if (e.key === 'Escape') closeReaderModal();
+            });
+          </script>
+        {% elif is_epub %}
+          <a href="https://www.epubread.com/en/" target="_blank" class="book-detail-btn"><i class="bi bi-book"></i> Читать онлайн (epub)</a>
+        {% endif %}
+      {% endif %}
+      <div class="book-detail-rating">
+        <div class="modern-avg-rating" style="margin-bottom:0;">
+          {% for i in "12345" %}
+            {% if avg_rating|default:0 >= i %}<i class="bi bi-star-fill"></i>{% elif avg_rating|default:0 >= i|add:"-0.5" %}<i class="bi bi-star-half"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
+          {% endfor %}
+        </div>
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'rate_book' book.pk %}" class="mb-2" id="modern-rating-form">
+          {% csrf_token %}
+          <div class="book-detail-rate-label mb-1">Оцените книгу:</div>
+          <div class="modern-stars" id="modern-stars">
+            {% for i in "12345" %}
+              <button type="submit" name="rating" value="{{ forloop.counter }}" class="star{% if user_rating and user_rating.rating >= forloop.counter %} selected{% endif %}" aria-label="{{ forloop.counter }} звезда" style="background:none;border:none;padding:0;outline:none;">
+                <i class="bi bi-star-fill"></i>
+              </button>
+            {% endfor %}
+          </div>
+          <div class="book-detail-rate-label mb-2">Ваша оценка: {% if user_rating %}{{ user_rating.rating }}{% else %}—{% endif %}</div>
+          <div class="mb-2">
+            {{ rating_form.review }}
+          </div>
+          <button type="submit" class="btn btn-main btn-sm">Оставить отзыв</button>
+        </form>
+        {% else %}
+          <div class="book-detail-rate-label mb-1">Оцените книгу:</div>
+          <div class="book-detail-stars">
+            {% for i in "12345" %}
+              {% if avg_rating|default:0 >= i %}<i class="bi bi-star-fill"></i>{% elif avg_rating|default:0 >= i|add:"-0.5" %}<i class="bi bi-star-half"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
+            {% endfor %}
+          </div>
+          <div class="book-detail-rate-label">Войдите, чтобы оценить и оставить отзыв</div>
+        {% endif %}
+      </div>
+      {% if book.genre %}
+        <div class="book-detail-genre"><i class="bi bi-tag"></i> {{ book.genre }}</div>
+      {% endif %}
+    </div>
+    <!-- Правая колонка -->
+    <div class="col-md-8">
+      <div class="book-detail-title"><i class="bi bi-bookmark-heart"></i> {{ book.title }}</div>
+      <div class="book-detail-author"><i class="bi bi-person-circle"></i> {{ book.author }}</div>
+      <div class="book-detail-avg-rating">
+        {% if avg_rating %}
+          <i class="bi bi-star-fill"></i> {{ avg_rating|floatformat:1 }}
+        {% else %}
+          <span class="text-muted">Нет оценок</span>
+        {% endif %}
+      </div>
+      <div id="desc" class="book-detail-description">{{ book.description|linebreaks }}</div>
+      <div id="desc-fade" class="book-detail-description-fade"></div>
+      <button id="expand-btn" class="book-detail-expand-btn">Читать дальше</button>
+      {% if book.author_info %}
+        <div class="book-detail-author-info"><b>Об авторе:</b> {{ book.author_info }}</div>
+      {% endif %}
+      <div class="book-detail-reviews">
+        <h5 class="mb-3" style="color:#bfa77a;"><i class="bi bi-chat-dots"></i> Отзывы и оценки</h5>
+        <div class="book-detail-avg-rating mb-2">
+          <b>Средний рейтинг:</b>
+          {% if avg_rating %}
+            <span>{{ avg_rating|floatformat:1 }} <i class="bi bi-star-fill"></i></span>
+          {% else %}
+            <span class="text-muted">Нет оценок</span>
+          {% endif %}
+        </div>
+        <!-- Форма для отзыва убрана по запросу -->
+        <div>
+          <b>Отзывы:</b>
+          {% for r in ratings %}
+            <div class="book-detail-review-card">
+              <div class="book-detail-review-user">{{ r.user }} <span class="book-detail-review-rating">{{ r.rating }}★</span></div>
+              <div>{{ r.review }}</div>
+              <div class="book-detail-review-date">{{ r.created_at|date:"d.m.Y H:i" }}</div>
+            </div>
+          {% empty %}
+            <div class="text-muted">Пока нет отзывов.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Кнопка "Читать дальше" для описания
+  const desc = document.getElementById('desc');
+  const fade = document.getElementById('desc-fade');
+  const btn = document.getElementById('expand-btn');
+  if(desc && fade && btn) {
+    let expanded = false;
+    btn.onclick = function() {
+      expanded = !expanded;
+      desc.classList.toggle('expanded', expanded);
+      fade.style.display = expanded ? 'none' : '';
+      btn.textContent = expanded ? 'Скрыть' : 'Читать дальше';
+    };
+    // Скрывать fade, если текст короткий
+    if(desc.scrollHeight <= 130) {
+      fade.style.display = 'none';
+      btn.style.display = 'none';
+    }
+  }
+  // Интерактивные звёзды для оценки
+const stars = document.querySelectorAll('#modern-stars .star');
+if (stars.length) {
+  stars.forEach((star, idx) => {
+    star.addEventListener('mouseenter', () => {
+      for (let i = 0; i <= idx; i++) stars[i].classList.add('hovered');
+    });
+    star.addEventListener('mouseleave', () => {
+      for (let i = 0; i < stars.length; i++) stars[i].classList.remove('hovered');
+    });
+  });
+}
+</script>
+{% endblock %} 

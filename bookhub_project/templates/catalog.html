@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Книжные списки — BookHub{% endblock %}
+{% block content %}
+<style>
+  body, .card, .card-body, .form-label, .form-control, .form-select, .btn, .text-muted, label, h1, h2, h3, h4, h5, h6, p, span, div {
+    color: var(--main-bg-dark) !important;
+  }
+  .catalog-bg {
+    position: absolute;
+    top: 70px; left: 0; width: 100%; height: calc(100% - 70px);
+    z-index: 0;
+    pointer-events: none;
+    background: var(--main-bg-light);
+  }
+  .catalog-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 32px;
+    padding: 24px 0 24px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--main-bg-light);
+  }
+  .catalog-scroll::-webkit-scrollbar {
+    height: 12px;
+    background: var(--main-bg-light);
+  }
+  .catalog-scroll::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 8px;
+  }
+  .catalog-card {
+    min-width: 270px;
+    max-width: 270px;
+    background: var(--card-bg);
+    border-radius: 18px;
+    box-shadow: 0 4px 32px rgba(44,59,47,0.10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 18px 22px 18px;
+    position: relative;
+    transition: box-shadow 0.18s, background 0.18s, transform 0.18s;
+    margin-bottom: 8px;
+  }
+  .catalog-card:hover {
+    background: var(--main-bg-light);
+    box-shadow: 0 8px 32px rgba(44,59,47,0.13);
+    transform: translateY(-4px) scale(1.03);
+  }
+  .catalog-rank {
+    position: absolute;
+    top: 14px; left: 14px;
+    width: 26px; height: 26px;
+    background: #fffbe9;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent);
+    box-shadow: 0 2px 8px rgba(191,167,122,0.13);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.02em;
+    font-weight: 700;
+    color: var(--accent);
+    transition: box-shadow 0.18s;
+  }
+  .catalog-rank .bi-trophy {
+    color: var(--accent);
+    font-size: 0.95em;
+    margin-right: 0.5px;
+    margin-bottom: 1px;
+  }
+  .catalog-cover {
+    width: 82px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: var(--main-bg-light);
+    box-shadow: 0 2px 8px rgba(44,59,47,0.08);
+    border: 2px solid var(--main-bg-light);
+    margin-bottom: 14px;
+    margin-top: 8px;
+    z-index: 1;
+  }
+  .catalog-title {
+    font-size: 1.08em;
+    font-weight: 700;
+    color: var(--accent3);
+    text-decoration: none;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .catalog-title .bi-bookmark-heart { color: var(--accent2); font-size: 1.05em; }
+  .catalog-title:hover { color: var(--accent); text-decoration: underline; }
+  .catalog-author {
+    color: var(--accent2);
+    font-size: 0.97em;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+  }
+  .catalog-author .bi-person-circle { color: var(--accent3); font-size: 1em; }
+  .catalog-rating {
+    font-size: 0.97em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 2px;
+    font-weight: 500;
+  }
+  .catalog-rating .bi-star-fill { color: var(--accent); font-size: 1.05em; margin-right: 2px; }
+  .catalog-rating .bi-people-fill { color: var(--accent2); font-size: 1em; margin-left: 7px; }
+  .catalog-actions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    justify-content: center;
+    padding-top: 8px;
+  }
+  .catalog-actions .btn {
+    border-radius: 7px;
+    font-size: 0.93em;
+    padding: 0.18em 0.7em;
+    font-weight: 500;
+    box-shadow: 0 1px 4px rgba(44,59,47,0.07);
+    border-width: 1px;
+    background: var(--main-bg-light);
+    color: var(--accent3);
+    border-color: var(--accent2);
+    transition: background 0.18s, color 0.18s, border 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .catalog-actions .btn:hover {
+    background: var(--main-bg-light);
+    color: var(--accent);
+    border-color: var(--accent2);
+  }
+  .catalog-actions .btn-main {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    padding: 0.18em 0.7em;
+    font-size: 0.93em;
+  }
+  .catalog-actions .btn-main:hover {
+    background: var(--accent2);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .catalog-actions .btn-icon {
+    background: none;
+    border: none;
+    color: var(--accent2);
+    font-size: 1.15em;
+    padding: 0.12em 0.3em;
+    box-shadow: none;
+    min-width: 0;
+    transition: color 0.18s;
+  }
+  .catalog-actions .btn-icon:hover {
+    color: var(--accent);
+    background: none;
+    border: none;
+  }
+  .catalog-actions form { display: inline; margin: 0; }
+  @media (max-width: 700px) {
+    .catalog-card { min-width: 80vw; max-width: 90vw; }
+    .catalog-scroll { gap: 16px; padding: 16px 0 16px 4px; }
+  }
+  .filter-bar .btn-dark {
+    background: var(--main-bg-light) !important;
+    color: var(--accent3) !important;
+    border-color: var(--accent2) !important;
+    font-weight: 600;
+    transition: background 0.18s, color 0.18s, border 0.18s;
+  }
+  .filter-bar .btn-dark:hover {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border-color: var(--accent2) !important;
+  }
+</style>
+<div class="catalog-bg"></div>
+<div class="container py-4 position-relative" style="max-width:1100px; z-index:2;">
+  <div class="mb-4 text-center">
+    <h1 style="font-size:2.3rem;font-weight:700;color:#7c674c;"><i class="bi bi-stars me-2"></i>Каталог книг <i class="bi bi-collection"></i></h1>
+    <div class="text-muted mb-2" style="font-size:1.1em;">Откройте для себя лучшие книги <i class="bi bi-bookmark-heart"></i>, добавляйте в свою библиотеку <i class="bi bi-plus-circle"></i> и делитесь впечатлениями <i class="bi bi-chat-dots"></i>!</div>
+  </div>
+  <!-- Фильтры (оставляем как есть) -->
+  <form class="row g-2 mb-4 filter-bar align-items-end" method="get">
+    <div class="col-12 col-md-3">
+      <input type="text" class="form-control" name="search" value="{{ search }}" placeholder="Поиск по книгам...">
+    </div>
+    <div class="col-6 col-md-2">
+      <select class="form-select" name="theme">
+        <option value="">Все темы</option>
+        <option>Фантастика</option>
+        <option>Нон-фикшн</option>
+        <option>Бизнес</option>
+        <option>Психология</option>
+        <option>Классика</option>
+      </select>
+    </div>
+    <div class="col-6 col-md-2">
+      <select class="form-select" name="lang">
+        <option value="">Все языки</option>
+        <option>Русский</option>
+        <option>Английский</option>
+        <option>Французский</option>
+      </select>
+    </div>
+    <div class="col-6 col-md-2">
+      <select class="form-select" name="rating">
+        <option value="">Любой рейтинг</option>
+        <option>4+</option>
+        <option>3+</option>
+      </select>
+    </div>
+    <div class="col-6 col-md-2">
+      <select class="form-select" name="sort">
+        <option value="popularity">По популярности</option>
+        <option value="date">По дате</option>
+        <option value="count">По количеству книг</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-1 d-grid">
+      <button class="btn btn-dark w-100" type="submit"><i class="bi bi-search"></i></button>
+    </div>
+  </form>
+  <!-- Каталог книг с горизонтальной прокруткой -->
+  <div class="catalog-scroll mb-5">
+          {% for book in books %}
+      <div class="catalog-card">
+        <div class="catalog-rank">
+          <i class="bi bi-trophy"></i>
+          <span style="font-size:0.98em;line-height:1;margin-left:1px;">{{ forloop.counter }}</span>
+        </div>
+                {% if book.cover %}
+          <img src="{{ book.cover.url }}" class="catalog-cover" alt="{{ book.title }}">
+                {% else %}
+          <div class="catalog-cover d-flex align-items-center justify-content-center"><i class="bi bi-book" style="font-size:1.3rem;color:#ccc;"></i></div>
+                {% endif %}
+        <a href="{% url 'book_detail' book.pk %}" class="catalog-title"><i class="bi bi-bookmark-heart"></i> {{ book.title }}</a>
+        <div class="catalog-author"><i class="bi bi-person-circle"></i> {{ book.author }}</div>
+        <div class="catalog-rating">
+          <i class="bi bi-star-fill"></i> {{ book.rating|default:'—'|floatformat:1 }}
+          <i class="bi bi-people-fill"></i> {{ book.rating_count|default:'0' }}
+        </div>
+        <div class="catalog-actions">
+          <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline-dark btn-sm" title="Подробнее"><i class="bi bi-eye"></i></a>
+                  {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'add_to_mybooks' %}" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="book_id" value="{{ book.pk }}">
+              <button type="submit" class="btn-icon" title="Добавить в мои книги"><i class="bi bi-plus-circle"></i></button>
+                    </form>
+                  {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-center py-4 text-muted">Книг не найдено.</div>
+    {% endfor %}
+  </div>
+  <!-- Пагинация (оставляем как есть) -->
+  <nav class="mt-5">
+    <ul class="pagination justify-content-center">
+      <li class="page-item disabled"><span class="page-link">1</span></li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li>
+      <li class="page-item"><a class="page-link" href="#">Вперёд</a></li>
+    </ul>
+  </nav>
+</div>
+{% endblock %} 
